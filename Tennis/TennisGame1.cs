@@ -5,17 +5,15 @@ namespace Tennis
         private int _mScore1;
         private int _mScore2;
         private readonly string _player1Name;
-        private readonly string _player2Name;
 
-        private TennisGame1(string player1Name, string player2Name)
+        private TennisGame1(string player1Name)
         {
             _player1Name = player1Name;
-            _player2Name = player2Name;
         }
 
-        public static TennisGame1 Create(string player1Name, string player2Name)
+        public static TennisGame1 Create(string player1Name)
         {
-            return new TennisGame1(player1Name, player2Name);
+            return new TennisGame1(player1Name);
         }
 
         public void WonPoint(string playerName)
@@ -31,65 +29,78 @@ namespace Tennis
             var score = string.Empty;
             if (_mScore1 == _mScore2)
             {
-                switch (_mScore1)
-                {
-                    case 0:
-                        score = "Love-All";
-                        break;
-                    case 1:
-                        score = "Fifteen-All";
-                        break;
-                    case 2:
-                        score = "Thirty-All";
-                        break;
-                    default:
-                        score = "Deuce";
-                        break;
-
-                }
+                score = GetScoreEquals();
             }
             else if (_mScore1 >= 4 || _mScore2 >= 4)
             {
-                var minusResult = _mScore1 - _mScore2;
-                score = minusResult switch
-                {
-                    1 => "Advantage player1",
-                    -1 => "Advantage player2",
-                    >= 2 => "Win for player1",
-                    _ => "Win for player2"
-                };
+                score = ScoreAdvantageOrWin();
             }
             else
             {
-                for (var i = 1; i < 3; i++)
-                {
-                    int tempScore;
-                    if (i != 1)
-                    {
-                        score += "-";
-                        tempScore = _mScore2;
-                    }
-                    else
-                        tempScore = _mScore1;
-
-                    switch (tempScore)
-                    {
-                        case 0:
-                            score += "Love";
-                            break;
-                        case 1:
-                            score += "Fifteen";
-                            break;
-                        case 2:
-                            score += "Thirty";
-                            break;
-                        case 3:
-                            score += "Forty";
-                            break;
-                    }
-                }
+                score = GetGeneralScore(score);
             }
             return score;
         }
+
+        private string GetGeneralScore(string score)
+        {
+            for (var i = 1; i < 3; i++)
+            {
+                score = SetPlayerScore(score, i);
+            }
+
+            return score;
+        }
+
+        private string SetPlayerScore(string score, int i)
+        {
+            int tempScore;
+            if (i != 1)
+            {
+                score += "-";
+                tempScore = _mScore2;
+            }
+            else
+                tempScore = _mScore1;
+
+            switch (tempScore)
+            {
+                case 0:
+                    score += "Love";
+                    break;
+                case 1:
+                    score += "Fifteen";
+                    break;
+                case 2:
+                    score += "Thirty";
+                    break;
+                case 3:
+                    score += "Forty";
+                    break;
+            }
+
+            return score;
+        }
+
+        private string ScoreAdvantageOrWin()
+        {
+            var minusResult = _mScore1 - _mScore2;
+            return minusResult switch
+            {
+                1 => "Advantage player1",
+                -1 => "Advantage player2",
+                >= 2 => "Win for player1",
+                _ => "Win for player2"
+            };
+        }
+
+        private string GetScoreEquals() =>
+            _mScore1 switch
+            {
+                0 => "Love-All",
+                1 => "Fifteen-All",
+                2 => "Thirty-All",
+                _ => "Deuce"
+            };
     }
 }
